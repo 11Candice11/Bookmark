@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-bookmark}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:-bookmark}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bookmark} -d ${DB_NAME:-bookmark}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${DB_USER:-bookmark}:${DB_PASSWORD}@db:5432/${DB_NAME:-bookmark}
+      PORT: 4000
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      EMAIL_FROM: ${EMAIL_FROM:-Bookmark <no-reply@bookmark.app>}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost}
+    ports:
+      - "4000:4000"
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${CLIENT_ORIGIN:-http://localhost}
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "3000:80"   # host nginx terminates TLS and forwards here
+
+volumes:
+  pgdata:

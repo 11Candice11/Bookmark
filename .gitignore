@@ -1,0 +1,19 @@
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# Local environment (copy from .env.example)
+.env
+.env.*
+!.env.example
+
+# Generated Prisma client
+server/src/generated/
+
+.DS_Store
+
+# AWS SSH keys — never commit
+*.pem
+aws/*.pem

@@ -2,7 +2,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
 
-# Copy workspace manifests
+# Copy workspace manifests only (for better layer caching)
 COPY package.json package-lock.json ./
 COPY shared/package.json ./shared/
 COPY server/package.json ./server/
@@ -10,14 +10,12 @@ COPY server/package.json ./server/
 # Install all workspace deps (production + dev – needed for prisma generate & tsx)
 RUN npm ci --workspace=shared --workspace=server --include-workspace-root
 
-# ── Stage 2: build / generate ─────────────────────────────────────────────────
+# ── Stage 2: generate Prisma client ──────────────────────────────────────────
 FROM node:22-alpine AS builder
 WORKDIR /app
 
-# Copy installed node_modules from deps stage
+# Copy root node_modules from deps stage (npm workspaces hoists everything here)
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/shared/node_modules ./shared/node_modules 2>/dev/null || true
-COPY --from=deps /app/server/node_modules ./server/node_modules 2>/dev/null || true
 
 # Copy source
 COPY shared/ ./shared/
@@ -33,7 +31,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Only copy what the runtime needs
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/shared ./shared
 COPY --from=builder /app/server ./server
@@ -41,5 +38,5 @@ COPY package.json ./
 
 EXPOSE 4000
 
-# Run migrations then start server
+# Run migrations then start server using tsx (ESM-native TS runner)
 CMD ["sh", "-c", "npx --prefix server prisma migrate deploy && node --import tsx/esm server/src/server.ts"]

@@ -22,8 +22,10 @@ COPY shared/ ./shared/
 COPY server/ ./server/
 COPY package.json ./
 
-# Generate Prisma client inside the image
-RUN npx --prefix server prisma generate
+# Generate Prisma client inside the image.
+# We pass a dummy DATABASE_URL since `prisma generate` doesn't connect to the DB;
+# prisma.config.ts calls env("DATABASE_URL") so it must be set.
+RUN cd server && DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate
 
 # ── Stage 3: runtime ──────────────────────────────────────────────────────────
 FROM node:22-alpine AS runner
@@ -39,4 +41,4 @@ COPY package.json ./
 EXPOSE 4000
 
 # Run migrations then start server using tsx (ESM-native TS runner)
-CMD ["sh", "-c", "npx --prefix server prisma migrate deploy && node --import tsx/esm server/src/server.ts"]
+CMD ["sh", "-c", "cd server && npx prisma migrate deploy && cd /app && node --import tsx/esm server/src/server.ts"]

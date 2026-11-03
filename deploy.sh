@@ -112,7 +112,7 @@ RUN_DOCKER="sg docker -c"
 \$RUN_DOCKER "docker compose -f ${COMPOSE_FILE} --env-file .env.production up -d --remove-orphans"
 
 echo "==> Container status:"
-\$RUN_DOCKER "docker compose -f ${COMPOSE_FILE} ps"
+\$RUN_DOCKER "docker compose -f ${COMPOSE_FILE} --env-file .env.production ps"
 REMOTE
 
 # ── 5. Obtain TLS cert and configure host nginx ───────────────────────────────

@@ -6,7 +6,7 @@ import { Logo } from "./Logo";
 const NAV_ITEMS = [
   { to: "/book", label: "Book Appointment" },
   { to: "/bookings", label: "My Bookings" },
-  { to: "/branches", label: "Find Branch" },
+  { to: "/branches", label: "Find a Branch" },
 ] as const;
 
 export function TopBar() {

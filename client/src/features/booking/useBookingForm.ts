@@ -17,10 +17,12 @@ export interface DetailsState {
   phone: string;
   /** Optional. "" means the customer left it blank. */
   email: string;
+  /** Optional. "" means the customer left it blank. */
+  idNumber: string;
   smsReminder: boolean;
   needsAssistance: boolean;
 }
-export type TextField = "fullName" | "phone" | "email";
+export type TextField = "fullName" | "phone" | "email" | "idNumber";
 export type FlagField = "smsReminder" | "needsAssistance";
 export type DetailErrors = Partial<Record<TextField, string>>;
 
@@ -63,7 +65,7 @@ const initialState: State = {
   date: null,
   startsAt: null,
   // Both boxes start unticked: the customer opts in to a reminder rather than being signed up.
-  details: { fullName: "", phone: "", email: "", smsReminder: false, needsAssistance: false },
+  details: { fullName: "", phone: "", email: "", idNumber: "", smsReminder: false, needsAssistance: false },
   showDetailErrors: false,
   notice: null,
   slotsVersion: 0,
@@ -102,9 +104,13 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-/** What the API's details schema is given. A blank email means "none", so it is left out. */
+/** What the API's details schema is given. Blank optional strings are left out. */
 function detailsInput(details: DetailsState) {
-  return { ...details, email: details.email.trim() || undefined };
+  return {
+    ...details,
+    email: details.email.trim() || undefined,
+    idNumber: details.idNumber.trim() || undefined,
+  };
 }
 
 /** Field errors for the details step, using the same schema as the API. */

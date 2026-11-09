@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Accessibility, Bell, Mail, ShieldCheck, Smartphone, User } from "lucide-react";
+import { Accessibility, Bell, CreditCard, Mail, ShieldCheck, Smartphone, User } from "lucide-react";
 import type { BranchDto } from "@bookmark/shared";
 import { BookingSummary } from "../../../components/BookingSummary";
 import { CheckboxCard } from "../../../components/CheckboxCard";
@@ -142,6 +142,31 @@ export function DetailsStep({
                 value={details.email}
                 onChange={(event) => onTextChange("email", event.target.value)}
                 onBlur={() => touch("email")}
+                aria-invalid={field.invalid}
+                aria-describedby={field.describedBy}
+                className={field.className}
+              />
+            )}
+          </FieldCard>
+
+          <FieldCard
+            label="SA ID Number"
+            labelNote="(Optional)"
+            icon={CreditCard}
+            error={errorFor("idNumber")}
+            hint="Your 13-digit South African National ID number. Lets you look up this booking later without a reference number."
+          >
+            {(field) => (
+              <input
+                id={field.id}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="e.g. 9001015800083"
+                maxLength={13}
+                value={details.idNumber}
+                onChange={(event) => onTextChange("idNumber", event.target.value.replace(/\D/g, ""))}
+                onBlur={() => touch("idNumber")}
                 aria-invalid={field.invalid}
                 aria-describedby={field.describedBy}
                 className={field.className}

@@ -57,6 +57,14 @@ export const slotsQuerySchema = z.object({
   date: dateStringSchema,
 });
 
+/** Query params for the GET /api/bookings?idNumber=... endpoint. */
+export const lookupByIdNumberSchema = z.object({
+  idNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{13}$/, "Enter a valid 13-digit South African ID number"),
+});
+
 /** The part of a booking the customer fills in. Used by the form and the API. */
 export const customerDetailsSchema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name").max(100, "That name is too long"),
@@ -71,6 +79,13 @@ export const customerDetailsSchema = z.object({
   smsReminder: z.boolean().default(false),
   /** Needs wheelchair ramp access or other help on arrival. */
   needsAssistance: z.boolean().default(false),
+  /** South African 13-digit National ID number. Optional — stored so the customer can look up
+   *  their booking by ID later. Leave it out (do not send "") to skip storing it. */
+  idNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{13}$/, "Enter a valid 13-digit South African ID number")
+    .optional(),
 });
 export type CustomerDetails = z.infer<typeof customerDetailsSchema>;
 
@@ -121,6 +136,10 @@ export interface BookingDto {
   reason: BookingReason;
   notes: string | null;
   branch: Pick<BranchDto, "id" | "name" | "address" | "city" | "province" | "primaryNumber">;
+}
+
+export interface BookingListDto {
+  bookings: BookingDto[];
 }
 
 export interface ApiErrorBody {

@@ -1,4 +1,4 @@
-import type { BookingDto, CreateBookingInput } from "@bookmark/shared";
+import type { BookingDto, BookingListDto, CreateBookingInput } from "@bookmark/shared";
 import { api } from "./client";
 
 export function createBooking(input: CreateBookingInput): Promise<BookingDto> {
@@ -7,4 +7,8 @@ export function createBooking(input: CreateBookingInput): Promise<BookingDto> {
 
 export function getBooking(reference: string): Promise<BookingDto> {
   return api<BookingDto>(`/bookings/${encodeURIComponent(reference)}`);
+}
+
+export function lookupBookingsByIdNumber(idNumber: string): Promise<BookingListDto> {
+  return api<BookingListDto>(`/bookings?idNumber=${encodeURIComponent(idNumber)}`);
 }

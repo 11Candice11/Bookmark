@@ -66,6 +66,7 @@ model Booking {
   fullName        String
   email           String? // optional: no confirmation email is sent without it
   phone           String
+  idNumber        String? // South African 13-digit ID number; used for self-service lookup
   reason          BookingReason
   notes           String?
   smsReminder     Boolean       @default(false) // customer asked for a text reminder (nothing sends one yet)
@@ -76,4 +77,5 @@ model Booking {
 
   @@index([branchId, startsAt])
   @@index([email])
+  @@index([idNumber])
 }

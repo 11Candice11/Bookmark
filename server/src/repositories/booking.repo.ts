@@ -15,6 +15,7 @@ export interface NewBooking {
   fullName: string;
   email: string | null;
   phone: string;
+  idNumber: string | null;
   reason: BookingReason;
   notes: string | null;
   smsReminder: boolean;
@@ -27,4 +28,12 @@ export function create(data: NewBooking): Promise<BookingWithBranch> {
 
 export function findByReference(reference: string): Promise<BookingWithBranch | null> {
   return prisma.booking.findUnique({ where: { reference }, include });
+}
+
+export function findByIdNumber(idNumber: string): Promise<BookingWithBranch[]> {
+  return prisma.booking.findMany({
+    where: { idNumber },
+    include,
+    orderBy: { startsAt: "desc" },
+  });
 }

@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import type { BookingDto, CreateBookingInput } from "@bookmark/shared";
+import type { BookingDto, BookingListDto, CreateBookingInput } from "@bookmark/shared";
 import { InvalidSlotError, NotFoundError, SlotTakenError } from "../errors/AppError.js";
 import { Prisma } from "../generated/prisma/client.js";
 import * as bookingRepo from "../repositories/booking.repo.js";
@@ -65,6 +65,7 @@ export async function createBooking(input: CreateBookingInput, now = new Date())
         fullName: input.fullName,
         email: input.email || null,
         phone: input.phone,
+        idNumber: input.idNumber || null,
         reason: input.reason,
         notes: input.notes || null,
         smsReminder: input.smsReminder,
@@ -94,4 +95,9 @@ export async function getBookingByReference(reference: string): Promise<BookingD
   const booking = await bookingRepo.findByReference(reference.trim().toUpperCase());
   if (!booking) throw new NotFoundError("Booking not found");
   return toBookingDto(booking);
+}
+
+export async function getBookingsByIdNumber(idNumber: string): Promise<BookingListDto> {
+  const bookings = await bookingRepo.findByIdNumber(idNumber.trim());
+  return { bookings: bookings.map(toBookingDto) };
 }

@@ -1,7 +1,13 @@
 import { Router } from "express";
-import { createBookingSchema, type BookingDto, type CreateBookingInput } from "@bookmark/shared";
+import {
+  createBookingSchema,
+  lookupByIdNumberSchema,
+  type BookingDto,
+  type BookingListDto,
+  type CreateBookingInput,
+} from "@bookmark/shared";
 import { validate } from "../middleware/validate.js";
-import { createBooking, getBookingByReference } from "../services/booking.service.js";
+import { createBooking, getBookingByReference, getBookingsByIdNumber } from "../services/booking.service.js";
 
 export const bookingsRouter = Router();
 
@@ -11,6 +17,16 @@ bookingsRouter.post<Record<string, never>, BookingDto, CreateBookingInput>(
   validate(createBookingSchema, "body"),
   async (req, res) => {
     res.status(201).json(await createBooking(req.body));
+  },
+);
+
+// GET /api/bookings?idNumber=<13-digit SA ID>
+// Returns all bookings for this ID number (may be empty — that is not a 404).
+bookingsRouter.get<Record<string, never>, BookingListDto>(
+  "/",
+  validate(lookupByIdNumberSchema, "query"),
+  async (req, res) => {
+    res.json(await getBookingsByIdNumber(req.query.idNumber as string));
   },
 );
 
